@@ -4,6 +4,7 @@ export interface Student {
   age: number;
   gender: string;
   course: string;
+  hobby: string;
   admissionDate: string;
   isDeleted: boolean;
   createdAt: Date;

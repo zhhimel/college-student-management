@@ -19,6 +19,8 @@ export class CreateStudentDto {
 
   @IsString()
   course: string;
+  @IsString()
+  hobby: string;
 
   @IsDateString()
   admissionDate: string;
