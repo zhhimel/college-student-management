@@ -16,9 +16,9 @@ constructor(
   private readonly studentsService: StudentsService,
 ) {
 const connection = new Redis({
-  host: 'localhost',
+  host: process.env.REDIS_HOST || 'localhost',
   port: 6379,
-  maxRetriesPerRequest: null, // ✅ important for BullMQ
+  maxRetriesPerRequest: null, 
 });    this.queue = new Queue('hobby-queue', { connection });
 
     new Worker(
@@ -41,6 +41,7 @@ const connection = new Redis({
   }
 
   async enqueueStudent(studentId: string) {
+    console.log('Enqueuing student for hobby assignment:', studentId);
     await this.queue.add('assign-hobby', { studentId });
   }
 }

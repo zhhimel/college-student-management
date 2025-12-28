@@ -3,7 +3,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { randomUUID } from 'crypto';
 import { Student } from './student.interface';
-import { HobbyService } from 'src/hobby/hobby.service';
+import { HobbyService } from '../hobby/hobby.service';
 import Redis from 'ioredis';
 
 @Injectable()
