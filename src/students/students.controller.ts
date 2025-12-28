@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
@@ -27,13 +28,16 @@ export class StudentsController {
   findAll() {
     return this.studentsService.findAll();
   }
-
+    @Get('count')
+async getTotal() {
+  return this.studentsService.getTotalStudents();
+}
   @Get(':id') 
   findOne(@Param('id') id: string) {
     return this.studentsService.findOne(id);
   }
 
-  @Put(':id') 
+  @Patch(':id') 
   update(@Param('id') id: string, @Body() dto: UpdateStudentDto) {
     return this.studentsService.update(id, dto);
   }
@@ -42,4 +46,6 @@ export class StudentsController {
   remove(@Param('id') id: string) {
     return this.studentsService.remove(id);
   }
+
+
 }

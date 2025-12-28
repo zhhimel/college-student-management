@@ -1,15 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { randomUUID } from 'crypto';
 import { Student } from './student.interface';
+import Redis from 'ioredis';
 
 @Injectable()
 export class StudentsService {
   private students: Student[] = [];
 
-  create(dto: CreateStudentDto) {
-    const student = {
+  constructor(@Inject('REDIS_CLIENT') private readonly redis: Redis) {}
+
+  async create(dto: CreateStudentDto) {
+    const student: Student = {
       id: randomUUID(),
       ...dto,
       isDeleted: false,
@@ -18,6 +21,9 @@ export class StudentsService {
     };
 
     this.students.push(student);
+
+    await this.redis.incr('student_count');
+
     return student;
   }
 
@@ -29,26 +35,28 @@ export class StudentsService {
     const student = this.students.find(
       s => s.id === id && !s.isDeleted,
     );
-    if (!student) {
-      throw new NotFoundException('Student not found');
-    }
+    if (!student) throw new NotFoundException('Student not found');
     return student;
   }
 
-  update(id: string, dto: UpdateStudentDto) {
+  async update(id: string, dto: UpdateStudentDto) {
     const student = this.findOne(id);
-
-    Object.assign(student, dto, {
-      updatedAt: new Date(),
-    });
-
+    Object.assign(student, dto, { updatedAt: new Date() });
     return student;
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     const student = this.findOne(id);
     student.isDeleted = true;
     student.updatedAt = new Date();
+
+    await this.redis.decr('student_count');
+
     return { message: 'Student deleted successfully' };
+  }
+
+  async getTotalStudents() {
+    const count = await this.redis.get('student_count');
+    return { totalStudents: parseInt(count ?? '0', 10) };
   }
 }
